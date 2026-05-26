@@ -1,0 +1,41 @@
+name: ClockBot - Clock In (10:00 AM IST)
+
+on:
+  schedule:
+    - cron: '30 4 * * 1-5'  # 10:00 AM IST = 04:30 UTC, Monday to Friday
+  workflow_dispatch:          # Allow manual trigger from GitHub UI
+
+jobs:
+  clock-in:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+          playwright install-deps chromium
+
+      - name: Run Clock In
+        env:
+          HF_EMPLOYEE_CODE: ${{ secrets.HF_EMPLOYEE_CODE }}
+          HF_PASSWORD: ${{ secrets.HF_PASSWORD }}
+          CLOCK_ACTION: clock_in
+        run: python clockbot_actions.py
+
+      - name: Upload screenshot proof
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: clock-in-screenshot
+          path: screenshots/
+          retention-days: 7
