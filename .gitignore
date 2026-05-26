@@ -1,0 +1,7 @@
+.env
+venv/
+screenshots/
+clockbot.log
+clockbot.pid
+__pycache__/
+*.pyc
