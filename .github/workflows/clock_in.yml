@@ -1,8 +1,6 @@
 name: ClockBot - Clock In
 
 on:
-  schedule:
-    - cron: '30 4 * * 1-5'
   workflow_dispatch:
   
 jobs:
