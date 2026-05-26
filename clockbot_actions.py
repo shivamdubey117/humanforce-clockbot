@@ -61,25 +61,71 @@ async def perform_action(action):
                     if await btn.is_visible(timeout=3000):
                         log.info(f"Clicking: {text}")
                         await btn.click()
-                        await page.wait_for_timeout(2000)
+                        await page.wait_for_timeout(3000)
 
                         # Handle confirmation dialog if it appears (e.g., clocking out too soon after clocking in)
-                        try:
-                            confirm_btn = page.locator('button:has-text("Yes, clock out"), button:has-text("Yes"), button:has-text("Confirm")').first
-                            if await confirm_btn.is_visible(timeout=3000):
-                                log.info("Confirmation dialog detected, clicking Yes/Confirm...")
-                                await confirm_btn.click()
-                                await page.wait_for_timeout(2000)
-                        except:
-                            log.info("No confirmation dialog appeared")
+                        if action == "clock_out":
+                            try:
+                                log.info("Checking for confirmation dialog...")
+                                # Wait for the confirmation dialog to appear (try multiple selectors)
+                                await page.wait_for_timeout(1000)
+
+                                # Try multiple possible selectors for the confirmation button
+                                confirm_selectors = [
+                                    'button:has-text("Yes, clock out")',
+                                    'button:text-is("Yes, clock out")',
+                                    'button:text("Yes")',
+                                    '.modal button:has-text("Yes")',
+                                    '[role="dialog"] button:has-text("Yes")'
+                                ]
+
+                                button_clicked = False
+                                for selector in confirm_selectors:
+                                    try:
+                                        confirm_btn = page.locator(selector).first
+                                        if await confirm_btn.is_visible(timeout=2000):
+                                            log.info(f"Confirmation dialog detected! Clicking button with selector: {selector}")
+                                            await confirm_btn.click()
+                                            log.info("Clicked confirmation button successfully")
+                                            await page.wait_for_timeout(3000)
+                                            button_clicked = True
+                                            break
+                                    except:
+                                        continue
+
+                                if not button_clicked:
+                                    log.info("No confirmation dialog appeared")
+
+                            except Exception as dialog_err:
+                                log.info(f"No confirmation dialog handling needed: {dialog_err}")
 
                         await page.wait_for_timeout(1000)
                         break
                 except:
                     continue
+
+            # Verify the action was successful by checking for the opposite button
+            await page.wait_for_timeout(2000)
+            verification_patterns = ["Clock Out","End Shift","End Work","Punch Out"] if action=="clock_in" else ["Clock In","Start Shift","Start Work","Punch In"]
+            action_verified = False
+            for verify_text in verification_patterns:
+                try:
+                    verify_btn = page.locator(f'button:has-text("{verify_text}"), a:has-text("{verify_text}")').first
+                    if await verify_btn.is_visible(timeout=2000):
+                        log.info(f"✓ Action verified: '{verify_text}' button is now visible")
+                        action_verified = True
+                        break
+                except:
+                    continue
+
             ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
             await page.screenshot(path=f"{SCREENSHOTS_DIR}/{action}_{ts}.png")
-            log.info("SUCCESS!")
+
+            if not action_verified:
+                log.warning(f"WARNING: Could not verify {action} was successful. Check screenshot.")
+                await page.screenshot(path=f"{SCREENSHOTS_DIR}/VERIFY_FAILED_{action}_{ts}.png", full_page=True)
+
+            log.info("SUCCESS!" if action_verified else "COMPLETED (verification uncertain)")
         except Exception as e:
             log.error(f"FAILED: {e}")
             try:
