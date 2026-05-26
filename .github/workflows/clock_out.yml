@@ -2,14 +2,13 @@ name: ClockBot - Clock Out (10:00 PM IST)
 
 on:
   schedule:
-    - cron: '30 16 * * 1-5'  # 10:00 PM IST = 16:30 UTC, Monday to Friday
-  workflow_dispatch:           # Allow manual trigger from GitHub UI
+    - cron: '30 16 * * 1-5'
+  workflow_dispatch:
 
 jobs:
   clock-out:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -32,7 +31,7 @@ jobs:
           CLOCK_ACTION: clock_out
         run: python clockbot_actions.py
 
-      - name: Upload screenshot proof
+      - name: Upload screenshot
         if: always()
         uses: actions/upload-artifact@v3
         with:
