@@ -1,18 +1,16 @@
-import asyncio
-import os
-import logging
+import asyncio, os, logging
 from datetime import datetime
 from dotenv import load_dotenv
 from playwright.async_api import async_playwright
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(levelname)s  %(message)s")
 log = logging.getLogger(__name__)
-
 load_dotenv()
-HUMANFORCE_URL = "https://panasonic.humanforce.co.uk/Account/LogOn?ReturnUrl=%2FHome"
-EMPLOYEE_CODE  = os.getenv("HF_EMPLOYEE_CODE")
-PASSWORD       = os.getenv("HF_PASSWORD")
-CLOCK_ACTION   = os.getenv("CLOCK_ACTION", "clock_in")
+
+HUMANFORCE_URL  = "https://panasonic.humanforce.co.uk/Account/LogOn?ReturnUrl=%2FHome"
+EMPLOYEE_CODE   = os.getenv("HF_EMPLOYEE_CODE")
+PASSWORD        = os.getenv("HF_PASSWORD")
+CLOCK_ACTION    = os.getenv("CLOCK_ACTION", "clock_in")
 SCREENSHOTS_DIR = "screenshots"
 os.makedirs(SCREENSHOTS_DIR, exist_ok=True)
 
@@ -81,5 +79,5 @@ async def perform_action(action):
             await browser.close()
 
 if __name__ == "__main__":
-    log.info(f"Action: {CLOCK_ACTION}")
+    log.info(f"ClockBot Actions — {CLOCK_ACTION}")
     asyncio.run(perform_action(CLOCK_ACTION))
