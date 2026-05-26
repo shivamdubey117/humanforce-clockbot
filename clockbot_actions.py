@@ -61,7 +61,19 @@ async def perform_action(action):
                     if await btn.is_visible(timeout=3000):
                         log.info(f"Clicking: {text}")
                         await btn.click()
-                        await page.wait_for_timeout(3000)
+                        await page.wait_for_timeout(2000)
+
+                        # Handle confirmation dialog if it appears (e.g., clocking out too soon after clocking in)
+                        try:
+                            confirm_btn = page.locator('button:has-text("Yes, clock out"), button:has-text("Yes"), button:has-text("Confirm")').first
+                            if await confirm_btn.is_visible(timeout=3000):
+                                log.info("Confirmation dialog detected, clicking Yes/Confirm...")
+                                await confirm_btn.click()
+                                await page.wait_for_timeout(2000)
+                        except:
+                            log.info("No confirmation dialog appeared")
+
+                        await page.wait_for_timeout(1000)
                         break
                 except:
                     continue
