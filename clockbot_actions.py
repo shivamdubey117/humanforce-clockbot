@@ -152,7 +152,8 @@ async def perform_action_for_member(member, action):
 
                         await page.wait_for_timeout(1000)
                         break
-                except:
+                except Exception as e:
+                    log.warning(f"Failed to find or click '{text}': {e}")
                     continue
 
             # Verify action
