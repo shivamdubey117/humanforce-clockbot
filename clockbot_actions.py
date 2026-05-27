@@ -60,11 +60,13 @@ async def perform_action(action):
             await page.wait_for_timeout(2000)
             patterns = ["Clock In","Start Shift","Start Work","Punch In"] if action=="clock_in" else ["Clock Out","End Shift","End Work","Punch Out"]
             await page.wait_for_timeout(3000)
+            action_time = None
             for text in patterns:
                 try:
                     btn = page.locator(f'button:has-text("{text}"), a:has-text("{text}")').first
                     if await btn.is_visible(timeout=3000):
-                        log.info(f"Clicking: {text}")
+                        action_time = datetime.now()
+                        log.info(f"Clicking: {text} at {action_time.strftime('%I:%M:%S %p')}")
                         await btn.click()
                         await page.wait_for_timeout(3000)
 
@@ -110,13 +112,13 @@ async def perform_action(action):
                     continue
 
             # Verify the action was successful by checking for the opposite button
-            await page.wait_for_timeout(2000)
-            verification_patterns = ["Clock Out","End Shift","End Work","Punch Out"] if action=="clock_in" else ["Clock In","Start Shift","Start Work","Punch In"]
+            await page.wait_for_timeout(3000)  # Increased wait time
+            verification_patterns = ["Clock Out","End Shift","End Work","Punch Out","Stop","Finish"] if action=="clock_in" else ["Clock In","Start Shift","Start Work","Punch In","Start","Begin"]
             action_verified = False
             for verify_text in verification_patterns:
                 try:
                     verify_btn = page.locator(f'button:has-text("{verify_text}"), a:has-text("{verify_text}")').first
-                    if await verify_btn.is_visible(timeout=2000):
+                    if await verify_btn.is_visible(timeout=3000):  # Increased timeout from 2000ms to 3000ms
                         log.info(f"✓ Action verified: '{verify_text}' button is now visible")
                         action_verified = True
                         break
@@ -124,13 +126,17 @@ async def perform_action(action):
                     continue
 
             ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+            ts_display = datetime.now().strftime("%d %b %Y - %I:%M:%S %p")
             await page.screenshot(path=f"{SCREENSHOTS_DIR}/{action}_{ts}.png")
 
             if not action_verified:
                 log.warning(f"WARNING: Could not verify {action} was successful. Check screenshot.")
                 await page.screenshot(path=f"{SCREENSHOTS_DIR}/VERIFY_FAILED_{action}_{ts}.png", full_page=True)
 
-            log.info("SUCCESS!" if action_verified else "COMPLETED (verification uncertain)")
+            action_status = "✅ SUCCESS" if action_verified else "⚠️ COMPLETED"
+            clock_action_display = "Clock In" if action == "clock_in" else "Clock Out"
+            log.info(f"{action_status}: {clock_action_display} at {ts_display}")
+            log.info(f"Screenshot: {action}_{ts}.png")
         except Exception as e:
             log.error(f"FAILED: {e}")
             try:
