@@ -26,7 +26,7 @@ jobs:
 
       - name: Create config.js with token
         env:
-          GITHUB_TOKEN_SECRET: ${{ secrets.GITHUB_TOKEN_FOR_TEAM }}
+          GITHUB_TOKEN_SECRET: ${{ secrets.TOKEN_FOR_TEAM }}
         run: |
           echo "window.GITHUB_TOKEN = '$GITHUB_TOKEN_SECRET';" > config.js
 
