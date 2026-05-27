@@ -123,7 +123,7 @@ async def perform_action(action):
                 except:
                     continue
 
-            ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+            ts = datetime.now().strftime("%Y%m%d_%H%M%S")
             await page.screenshot(path=f"{SCREENSHOTS_DIR}/{action}_{ts}.png")
 
             if not action_verified:
@@ -134,7 +134,7 @@ async def perform_action(action):
         except Exception as e:
             log.error(f"FAILED: {e}")
             try:
-                await page.screenshot(path=f"{SCREENSHOTS_DIR}/ERROR_{action}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.png", full_page=True)
+                await page.screenshot(path=f"{SCREENSHOTS_DIR}/ERROR_{action}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png", full_page=True)
             except:
                 pass
             raise SystemExit(1)
