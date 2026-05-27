@@ -2,7 +2,10 @@ name: ClockBot - Clock In
 
 on:
   workflow_dispatch:
-  
+
+env:
+  TZ: Asia/Kolkata
+
 jobs:
   clock-in:
     runs-on: ubuntu-latest
@@ -20,6 +23,7 @@ jobs:
           HF_EMPLOYEE_CODE: ${{ secrets.HF_EMPLOYEE_CODE }}
           HF_PASSWORD: ${{ secrets.HF_PASSWORD }}
           CLOCK_ACTION: clock_in
+          TZ: Asia/Kolkata
       - uses: actions/upload-artifact@v4
         if: always()
         with:
