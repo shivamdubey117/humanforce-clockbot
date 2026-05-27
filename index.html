@@ -594,7 +594,7 @@
       </div>
 
       <button class="btn btn-primary" id="sync-btn" onclick="syncToGitHub()" style="margin-top: 20px;">
-        🔄 Sync Changes to GitHub
+        🔄 Sync Changes
       </button>
     </div>
   </div>
@@ -678,7 +678,7 @@
         localStorage.setItem('clockbot_members', JSON.stringify(members));
 
         syncStatus.className = 'sync-status synced';
-        syncStatus.innerHTML = '✅ Team data loaded from GitHub';
+        syncStatus.innerHTML = '✅ Team Members registered already for Auto Clocking';
 
         renderTeam(members);
       } else if (res.status === 404) {
@@ -793,7 +793,7 @@
         document.getElementById('reg-password').value = '';
 
         updateStats();
-        showToast(`${name} registered and saved to GitHub! ✨`);
+        showToast(`${name} registered for auto clocking! ✨`);
       }
     } catch (e) {
       showToast(`Error: ${e.message}`, 'error');
@@ -852,7 +852,7 @@
         localStorage.setItem('clockbot_members', JSON.stringify(members));
         renderTeam(members);
         updateStats();
-        showToast('Member removed and synced to GitHub');
+        showToast('Member removed from auto clocking.');
       }
     } catch (e) {
       showToast(`Error: ${e.message}`, 'error');
