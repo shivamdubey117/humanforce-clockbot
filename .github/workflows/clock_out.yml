@@ -2,9 +2,6 @@ name: ClockBot - Clock Out (10:00 PM IST)
 
 on:
   workflow_dispatch:
-  schedule:
-    # 10:00 PM IST = 4:30 PM UTC (IST = UTC+5:30)
-    - cron: '30 16 * * 1-5'
 
 env:
   TZ: Asia/Kolkata
