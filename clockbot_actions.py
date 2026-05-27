@@ -17,7 +17,12 @@ os.makedirs(SCREENSHOTS_DIR, exist_ok=True)
 async def perform_action(action):
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True, args=["--no-sandbox","--disable-setuid-sandbox","--disable-dev-shm-usage","--disable-gpu","--single-process"])
-        page = await (await browser.new_context(viewport={"width":1280,"height":800})).new_page()
+        context = await browser.new_context(
+            viewport={"width":1280,"height":800},
+            timezone_id="Asia/Kolkata",
+            locale="en-IN"
+        )
+        page = await context.new_page()
         try:
             log.info(f"Starting {action}...")
             await page.goto(HUMANFORCE_URL, wait_until="networkidle", timeout=30000)
