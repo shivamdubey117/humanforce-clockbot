@@ -5,3 +5,4 @@ clockbot.log
 clockbot.pid
 __pycache__/
 *.pyc
+config.js

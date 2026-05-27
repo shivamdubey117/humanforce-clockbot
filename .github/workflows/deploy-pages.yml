@@ -24,6 +24,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Create config.js with token
+        env:
+          GITHUB_TOKEN_SECRET: ${{ secrets.GITHUB_TOKEN_FOR_TEAM }}
+        run: |
+          echo "window.GITHUB_TOKEN = '$GITHUB_TOKEN_SECRET';" > config.js
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 

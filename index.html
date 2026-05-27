@@ -607,15 +607,16 @@
   <span id="toast-msg">Saved!</span>
 </div>
 
+<!-- Config loaded externally -->
+<script src="config.js"></script>
+
 <script>
-  // GitHub Configuration - Your repo details
   const GITHUB_CONFIG = {
     owner: 'shivamdubey117',
     repo: 'humanforce-clockbot',
     branch: 'main',
     filePath: 'team_members.json',
-    // Token will be entered by admin (you) once
-    token: localStorage.getItem('github_token') || ''
+    token: window.GITHUB_TOKEN || ''
   };
 
   // ── Toast ──────────────────────────────────────────────────────────────────
@@ -657,18 +658,6 @@
 
   async function loadFromGitHub() {
     const syncStatus = document.getElementById('sync-status');
-
-    if (!GITHUB_CONFIG.token) {
-      const token = prompt('Enter your GitHub Personal Access Token (will be saved in browser):');
-      if (token) {
-        GITHUB_CONFIG.token = token;
-        localStorage.setItem('github_token', token);
-      } else {
-        syncStatus.className = 'sync-status not-synced';
-        syncStatus.innerHTML = '⚠️ GitHub token required. Please refresh and enter token.';
-        return;
-      }
-    }
 
     try {
       const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filePath}`;
@@ -792,19 +781,6 @@
       });
 
       // Save to GitHub
-      if (!GITHUB_CONFIG.token) {
-        const token = prompt('Enter your GitHub Personal Access Token:');
-        if (token) {
-          GITHUB_CONFIG.token = token;
-          localStorage.setItem('github_token', token);
-        } else {
-          showToast('GitHub token required', 'error');
-          btn.disabled = false;
-          btn.innerHTML = 'Register & Save to GitHub';
-          return;
-        }
-      }
-
       const success = await saveToGitHub(members);
 
       if (success) {
