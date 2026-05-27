@@ -68,7 +68,12 @@ async def perform_action(action):
                         action_time = datetime.now()
                         log.info(f"Clicking: {text} at {action_time.strftime('%I:%M:%S %p')}")
                         await btn.click()
-                        await page.wait_for_timeout(3000)
+                        await page.wait_for_timeout(2000)
+
+                        # Take screenshot immediately after action before page changes
+                        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        await page.screenshot(path=f"{SCREENSHOTS_DIR}/{action}_{ts}.png")
+                        log.info(f"Screenshot saved: {action}_{ts}.png")
 
                         # Handle confirmation dialog if it appears (e.g., clocking out too soon after clocking in)
                         if action == "clock_out":
@@ -125,18 +130,17 @@ async def perform_action(action):
                 except:
                     continue
 
-            ts = datetime.now().strftime("%Y%m%d_%H%M%S")
             ts_display = datetime.now().strftime("%d %b %Y - %I:%M:%S %p")
-            await page.screenshot(path=f"{SCREENSHOTS_DIR}/{action}_{ts}.png")
 
             if not action_verified:
                 log.warning(f"WARNING: Could not verify {action} was successful. Check screenshot.")
-                await page.screenshot(path=f"{SCREENSHOTS_DIR}/VERIFY_FAILED_{action}_{ts}.png", full_page=True)
+                # Take a full page verification screenshot if needed
+                ts_verify = datetime.now().strftime("%Y%m%d_%H%M%S")
+                await page.screenshot(path=f"{SCREENSHOTS_DIR}/VERIFY_FAILED_{action}_{ts_verify}.png", full_page=True)
 
             action_status = "✅ SUCCESS" if action_verified else "⚠️ COMPLETED"
             clock_action_display = "Clock In" if action == "clock_in" else "Clock Out"
             log.info(f"{action_status}: {clock_action_display} at {ts_display}")
-            log.info(f"Screenshot: {action}_{ts}.png")
         except Exception as e:
             log.error(f"FAILED: {e}")
             try:
