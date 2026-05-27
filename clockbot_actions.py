@@ -1,4 +1,4 @@
-import asyncio, os, logging, json
+import asyncio, os, logging, json, base64
 from datetime import datetime
 from dotenv import load_dotenv
 from playwright.async_api import async_playwright
@@ -12,6 +12,20 @@ CLOCK_ACTION    = os.getenv("CLOCK_ACTION", "clock_in")
 SCREENSHOTS_DIR = "screenshots"
 TEAM_FILE       = "team_members.json"
 os.makedirs(SCREENSHOTS_DIR, exist_ok=True)
+
+
+def decrypt_password(encrypted):
+    """Decrypt password using XOR cipher (matches JavaScript encryption)."""
+    try:
+        key = 'HF-ClockBot-2026'
+        decoded = base64.b64decode(encrypted).decode('latin-1')
+        password = ''
+        for i in range(len(decoded)):
+            password += chr(ord(decoded[i]) ^ ord(key[i % len(key)]))
+        return password
+    except Exception:
+        # If decryption fails, return as-is (for backwards compatibility)
+        return encrypted
 
 
 def load_team_members():
@@ -30,13 +44,14 @@ def load_team_members():
 
 
 def get_password(member):
-    """Get password from member, supporting environment variable substitution."""
+    """Get password from member, decrypt if encrypted, support env vars."""
     password = member.get("password", "")
     # Support ${VAR_NAME} syntax for environment variables
     if password.startswith("${") and password.endswith("}"):
         env_var = password[2:-1]
         return os.getenv(env_var, password)
-    return password
+    # Decrypt the password
+    return decrypt_password(password)
 
 
 async def perform_action_for_member(member, action):
