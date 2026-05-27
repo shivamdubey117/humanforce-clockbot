@@ -110,7 +110,28 @@ async def perform_action_for_member(member, action):
             await page.wait_for_timeout(3000)
 
             action_time = None
-            for text in patterns:
+            action_verified = False
+
+            # Check if already clocked in/out
+            if action == "clock_in":
+                # For clock_in, check if "Clock Out" button already exists (means already clocked in)
+                try:
+                    clock_out_btn = page.locator('button:has-text("Clock Out"), button:has-text("End Shift")').first
+                    if await clock_out_btn.is_visible(timeout=2000):
+                        log.info(f"Already clocked in for {name} (Clock Out button visible)")
+                        # Take screenshot anyway
+                        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        safe_name = name.replace(" ", "_").replace(".", "_")
+                        shot_path = f"{SCREENSHOTS_DIR}/{safe_name}_{action}_{ts}.png"
+                        await page.screenshot(path=shot_path)
+                        log.info(f"Screenshot saved: {shot_path}")
+                        action_verified = True
+                        action_time = datetime.now()
+                except:
+                    pass
+
+            if not action_verified:
+                for text in patterns:
                 try:
                     btn = page.locator(f'button:has-text("{text}"), a:has-text("{text}")').first
                     if await btn.is_visible(timeout=3000):
@@ -156,11 +177,11 @@ async def perform_action_for_member(member, action):
                     log.warning(f"Failed to find or click '{text}': {e}")
                     continue
 
-            # Verify action
-            await page.wait_for_timeout(3000)
-            verification_patterns = ["Clock Out","End Shift","End Work","Punch Out","Stop","Finish"] if action=="clock_in" else ["Clock In","Start Shift","Start Work","Punch In","Start","Begin"]
-            action_verified = False
-            for verify_text in verification_patterns:
+            # Verify action (only if not already verified)
+            if not action_verified:
+                await page.wait_for_timeout(3000)
+                verification_patterns = ["Clock Out","End Shift","End Work","Punch Out","Stop","Finish"] if action=="clock_in" else ["Clock In","Start Shift","Start Work","Punch In","Start","Begin"]
+                for verify_text in verification_patterns:
                 try:
                     verify_btn = page.locator(f'button:has-text("{verify_text}"), a:has-text("{verify_text}")').first
                     if await verify_btn.is_visible(timeout=3000):
