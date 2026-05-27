@@ -1,7 +1,10 @@
-name: ClockBot - Clock In
+name: ClockBot - Clock In (10:00 AM IST)
 
 on:
   workflow_dispatch:
+  schedule:
+    # 10:00 AM IST = 4:30 AM UTC (IST = UTC+5:30)
+    - cron: '30 4 * * 1-5'
 
 env:
   TZ: Asia/Kolkata
@@ -9,23 +12,40 @@ env:
 jobs:
   clock-in:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: |
+
+      - name: Install dependencies
+        run: |
           pip install -r requirements.txt
           playwright install chromium
           playwright install-deps chromium
-      - run: python clockbot_actions.py
+
+      - name: Create team members file
         env:
-          HF_EMPLOYEE_CODE: ${{ secrets.HF_EMPLOYEE_CODE }}
-          HF_PASSWORD: ${{ secrets.HF_PASSWORD }}
+          TEAM_MEMBERS_JSON: ${{ secrets.TEAM_MEMBERS_JSON }}
+        run: |
+          if [ -n "$TEAM_MEMBERS_JSON" ]; then
+            echo "$TEAM_MEMBERS_JSON" > team_members.json
+          fi
+
+      - name: Run Clock In for all team members
+        env:
           CLOCK_ACTION: clock_in
           TZ: Asia/Kolkata
-      - uses: actions/upload-artifact@v4
+        run: python clockbot_actions.py
+
+      - name: Upload screenshots
         if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: screenshot
+          name: clock-in-screenshots
           path: screenshots/
+          retention-days: 7

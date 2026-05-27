@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Shivam Dubey",
+    "email": "shivam.dubey@panasonic.aero",
+    "password": "${SHIVAM_PASSWORD}",
+    "active": true
+  }
+]

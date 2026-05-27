@@ -2,6 +2,9 @@ name: ClockBot - Clock Out (10:00 PM IST)
 
 on:
   workflow_dispatch:
+  schedule:
+    # 10:00 PM IST = 4:30 PM UTC (IST = UTC+5:30)
+    - cron: '30 16 * * 1-5'
 
 env:
   TZ: Asia/Kolkata
@@ -9,7 +12,7 @@ env:
 jobs:
   clock-out:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,18 +28,24 @@ jobs:
           playwright install chromium
           playwright install-deps chromium
 
-      - name: Run Clock Out
+      - name: Create team members file
         env:
-          HF_EMPLOYEE_CODE: ${{ secrets.HF_EMPLOYEE_CODE }}
-          HF_PASSWORD: ${{ secrets.HF_PASSWORD }}
+          TEAM_MEMBERS_JSON: ${{ secrets.TEAM_MEMBERS_JSON }}
+        run: |
+          if [ -n "$TEAM_MEMBERS_JSON" ]; then
+            echo "$TEAM_MEMBERS_JSON" > team_members.json
+          fi
+
+      - name: Run Clock Out for all team members
+        env:
           CLOCK_ACTION: clock_out
           TZ: Asia/Kolkata
         run: python clockbot_actions.py
 
-      - name: Upload screenshot
+      - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: clock-out-screenshot
+          name: clock-out-screenshots
           path: screenshots/
           retention-days: 7
