@@ -808,7 +808,7 @@
       if (members.find(m => m.email === email)) {
         showToast('This email is already registered', 'error');
         btn.disabled = false;
-        btn.innerHTML = 'Register & Save to GitHub';
+        btn.innerHTML = 'Registered';
         return;
       }
 
@@ -842,7 +842,7 @@
     }
 
     btn.disabled = false;
-    btn.innerHTML = 'Register & Save to GitHub';
+    btn.innerHTML = 'Register';
   }
 
   // ── Render Team ────────────────────────────────────────────────────────────
