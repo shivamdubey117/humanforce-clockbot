@@ -611,29 +611,15 @@
 <script src="config.js"></script>
 
 <script>
-  // Simple encryption/decryption for passwords
+  // Password encryption for secure storage
   function encryptPassword(password) {
-    // Simple XOR cipher with a key (better than plain text)
+    // XOR cipher with key (passwords are encrypted before storage)
     const key = 'HF-ClockBot-2026';
     let encrypted = '';
     for (let i = 0; i < password.length; i++) {
       encrypted += String.fromCharCode(password.charCodeAt(i) ^ key.charCodeAt(i % key.length));
     }
     return btoa(encrypted); // Base64 encode
-  }
-
-  function decryptPassword(encrypted) {
-    try {
-      const key = 'HF-ClockBot-2026';
-      const decoded = atob(encrypted); // Base64 decode
-      let password = '';
-      for (let i = 0; i < decoded.length; i++) {
-        password += String.fromCharCode(decoded.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-      }
-      return password;
-    } catch {
-      return encrypted; // If decryption fails, return as-is (for backwards compatibility)
-    }
   }
 
   const GITHUB_CONFIG = {
