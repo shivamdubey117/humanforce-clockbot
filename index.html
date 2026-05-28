@@ -583,7 +583,7 @@
       <div class="card-sub">All registered members get auto clock-in/out on weekdays at 10:00 AM and 10:00 PM IST.</div>
 
       <div id="sync-status" class="sync-status not-synced">
-        ⚠️ Loading team data from GitHub...
+        ⚠️ Loading team data
       </div>
 
       <div class="team-list" id="team-list">
@@ -901,7 +901,7 @@
     }
 
     btn.disabled = false;
-    btn.innerHTML = '🔄 Sync Changes to GitHub';
+    btn.innerHTML = '🔄 Latest Sync Changes complete ';
   }
 
   // ── Sync to GitHub ──────────────────────────────────────────────────────────
@@ -917,15 +917,15 @@
       if (success) {
         const syncStatus = document.getElementById('sync-status');
         syncStatus.className = 'sync-status synced';
-        syncStatus.innerHTML = '✅ Team data synced to GitHub';
-        showToast('Team data synced to GitHub!');
+        syncStatus.innerHTML = '✅ Team data synced';
+        showToast('Team data synced!');
       }
     } catch (e) {
       showToast(`Sync failed: ${e.message}`, 'error');
     }
 
     btn.disabled = false;
-    btn.innerHTML = '🔄 Sync Changes to GitHub';
+    btn.innerHTML = '🔄 Sync Changes';
   }
 
   // ── Stats ──────────────────────────────────────────────────────────────────
